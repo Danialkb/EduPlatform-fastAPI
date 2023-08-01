@@ -38,3 +38,13 @@ class ShowUser(TunedModel):
     name: str
     surname: str
     email: EmailStr
+
+
+class UserAuth(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str

@@ -10,11 +10,7 @@ class CourseService:
 
     async def create_course(self, body: CourseCreate):
         async with self.repo.db_session.begin():
-            course = await self.repo.create_course(
-                title=body.title,
-                description=body.description,
-                owner=body.owner
-            )
+            course = await self.repo.create_course(body)
 
             return ShowCourse(
                 title=course.title,
