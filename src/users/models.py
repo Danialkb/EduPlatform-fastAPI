@@ -1,9 +1,15 @@
 import uuid
+import enum
 
-from sqlalchemy import Column, UUID, String, Boolean
+from sqlalchemy import Column, UUID, String, Boolean, Enum as SqlEnum
 from sqlalchemy.orm import relationship
 
 from database import Base
+
+
+class RoleEnum(enum.Enum):
+    TUTOR = 'TUTOR'
+    STUDENT = 'STUDENT'
 
 
 class User(Base):
@@ -15,5 +21,6 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     is_active = Column(Boolean(), default=True)
     password = Column(String(length=1024), nullable=False)
+    role = Column(SqlEnum(RoleEnum), default=RoleEnum.STUDENT)
 
     courses = relationship("Course", back_populates="owner")

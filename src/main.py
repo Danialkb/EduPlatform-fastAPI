@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
+
 from users.routers import router as user_router
 from courses.routers import router as course_router
 

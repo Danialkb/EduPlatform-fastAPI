@@ -14,5 +14,7 @@ class Course(Base):
     owner_id = Column(UUID(as_uuid=True), ForeignKey('user.id'))
     description = Column(String, nullable=False)
     is_active = Column(Boolean(), default=True)
+    is_private = Column(Boolean(), default=True)
+    logo = Column(String, default='/course_logos/no-img.png')
 
     owner = relationship("User", back_populates="courses")
