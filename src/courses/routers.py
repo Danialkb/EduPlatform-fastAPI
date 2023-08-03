@@ -30,11 +30,6 @@ async def create_course(
     return result
 
 
-@router.post("/file/")
-async def upload_file(logo: UploadFile = File(...)):
-    return {"filename": logo.filename}
-
-
 @router.get("/")
 async def get_courses(session: AsyncSession = Depends(get_session)):
     course_service = CourseService(session)

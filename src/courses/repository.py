@@ -14,8 +14,9 @@ class CourseRepo(RepositoryBase):
             title=body.title,
             owner_id=owner_id,
             description=body.description,
-            logo=filename
         )
+        if filename:
+            new_course.logo = filename
         self.db_session.add(new_course)
         await self.db_session.commit()
         return new_course
