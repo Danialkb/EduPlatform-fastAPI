@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from courses.permissions import is_tutor_and_course_owner
-from courses.schemas import ShowCourse, CourseCreate, AddStudent
+from courses.schemas import ShowCourse, CourseCreate, AddDeleteStudent
 from courses.services import CourseService
 from database import get_session
 from users.models import User, RoleEnum
@@ -36,16 +36,12 @@ async def create_course(
 @router.post("/{id}/add-student/")
 async def add_student(
         id: str,
-        body: AddStudent,
+        body: AddDeleteStudent,
         session: AsyncSession = Depends(get_session),
         user: User = Depends(get_current_user)
 ):
     course_service = CourseService(session)
-    course = await course_service.repo.get_course(id)
-
-    await session.refresh(user)
-
-    if not is_tutor_and_course_owner(user, course):
+    if not is_tutor_and_course_owner(user, id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="authorized access only"
@@ -55,6 +51,23 @@ async def add_student(
 
     return result
 
+
+@router.get("/{course_id}/students/")
+async def get_course_students(
+        course_id: str,
+        user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+):
+    course_service = CourseService(session)
+    if not is_tutor_and_course_owner(user, course_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="authorized access only"
+        )
+
+    result = await course_service.get_course_students(course_id)
+
+    return result
 
 @router.get("/")
 async def get_courses(session: AsyncSession = Depends(get_session)):

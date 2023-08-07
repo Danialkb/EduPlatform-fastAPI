@@ -13,5 +13,5 @@ class ShowCourse(BaseModel):
     owner: str
 
 
-class AddStudent(BaseModel):
+class AddDeleteStudent(BaseModel):
     email: EmailStr

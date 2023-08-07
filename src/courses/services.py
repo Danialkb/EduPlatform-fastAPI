@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from courses.repository import CourseRepo
-from courses.schemas import CourseCreate, ShowCourse, AddStudent
+from courses.schemas import CourseCreate, ShowCourse, AddDeleteStudent
 
 
 class CourseFilesService:
@@ -73,5 +73,11 @@ class CourseService:
             owner=f'{course.owner.name + course.owner.surname}'
         )
 
-    async def add_student(self, id: str, body: AddStudent):
+    async def get_course_students(self, id: str):
+        return await self.repo.get_course_students(id)
+
+    async def add_student(self, id: str, body: AddDeleteStudent):
         return await self.repo.add_student(id, body.email)
+
+    async def delete_student(self, id: str, body:  AddDeleteStudent):
+        return await self.repo.delete_student(id, body.email)
