@@ -1,9 +1,16 @@
 import uuid
 
-from sqlalchemy import Column, UUID, ForeignKey, String, Boolean
+from sqlalchemy import Column, UUID, ForeignKey, String, Boolean, Table
 from sqlalchemy.orm import relationship
 
 from database import Base
+
+association_table = Table(
+    'course_student_association',
+    Base.metadata,
+    Column('course_id', UUID(as_uuid=True), ForeignKey('course.id')),
+    Column('student_id', UUID(as_uuid=True), ForeignKey('user.id'))
+)
 
 
 class Course(Base):
@@ -18,3 +25,4 @@ class Course(Base):
     logo = Column(String, default='/course_logos/no-img.png')
 
     owner = relationship("User", back_populates="courses")
+    students = relationship("User", secondary=association_table, back_populates="courses")

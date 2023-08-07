@@ -35,12 +35,6 @@ class UserService:
 
     async def verify_user(self, creds) -> Token:
         user = await self.repo.get_user_by_email(creds.username)
-
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Incorrect email or password"
-            )
         if not self._verify_password(creds.password, user.password):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -53,6 +47,12 @@ class UserService:
 
     async def get_user(self, id: str) -> ShowUser:
         user = await self.repo.get_user(id)
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No such user"
+            )
 
         return ShowUser(
             user_id=user.id,

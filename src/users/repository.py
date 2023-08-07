@@ -1,4 +1,7 @@
+from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from starlette import status
 
 from users.models import User
 from users.schemas import UserCreate
@@ -18,8 +21,18 @@ class UserRepo(RepositoryBase):
         return new_user
 
     async def get_user_by_email(self, email: str):
-        query = select(User).where(User.email == email)
+        query = (
+            select(User)
+            .where(User.email == email)
+            .options(selectinload(User.courses))
+        )
         result = await self.db_session.execute(query)
+
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect email or password"
+            )
 
         return result.scalar_one_or_none()
 

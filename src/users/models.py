@@ -4,6 +4,7 @@ import enum
 from sqlalchemy import Column, UUID, String, Boolean, Enum as SqlEnum
 from sqlalchemy.orm import relationship
 
+from courses.models import association_table
 from database import Base
 
 
@@ -24,3 +25,6 @@ class User(Base):
     role = Column(SqlEnum(RoleEnum), default=RoleEnum.STUDENT)
 
     courses = relationship("Course", back_populates="owner")
+    enrolled_courses = relationship("Course", secondary=association_table, back_populates="students")
+
+

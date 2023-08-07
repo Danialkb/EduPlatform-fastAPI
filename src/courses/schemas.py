@@ -1,5 +1,5 @@
 from fastapi import UploadFile, File
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class CourseCreate(BaseModel):
@@ -11,3 +11,7 @@ class ShowCourse(BaseModel):
     title: str
     description: str
     owner: str
+
+
+class AddStudent(BaseModel):
+    email: EmailStr

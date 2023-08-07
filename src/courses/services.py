@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from courses.repository import CourseRepo
-from courses.schemas import CourseCreate, ShowCourse
+from courses.schemas import CourseCreate, ShowCourse, AddStudent
 
 
 class CourseFilesService:
@@ -53,9 +53,25 @@ class CourseService:
 
         if len(courses) == 0:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="No courses"
             )
 
         return courses
 
+    async def get_course(self, id: str):
+        course = await self.repo.get_course(id)
+
+        if not course:
+            raise HTTPException(
+                status_code=status.HTTP_404_BAD_REQUEST,
+                detail="No such course"
+            )
+        return ShowCourse(
+            title=course.title,
+            description=course.description,
+            owner=f'{course.owner.name + course.owner.surname}'
+        )
+
+    async def add_student(self, id: str, body: AddStudent):
+        return await self.repo.add_student(id, body.email)

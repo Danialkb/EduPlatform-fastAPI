@@ -1,9 +1,12 @@
 from typing import List
 
-from sqlalchemy import select
+from fastapi import HTTPException
+from sqlalchemy import select, insert
+from starlette import status
 
-from courses.models import Course
-from courses.schemas import CourseCreate, ShowCourse
+from courses.models import Course, association_table
+from courses.schemas import CourseCreate
+from users.repository import UserRepo
 from utils.repository_base import RepositoryBase
 
 
@@ -26,3 +29,35 @@ class CourseRepo(RepositoryBase):
         result = await self.db_session.execute(query)
 
         return result.scalars().all()
+
+    async def get_course(self, id: str) -> Course:
+        query = select(Course).where(Course.id == id)
+        result = await self.db_session.execute(query)
+
+        return result.scalar_one_or_none()
+
+    async def add_student(self, id: str, student_email: str):
+        user_service = UserRepo(self.db_session)
+        student = await user_service.get_user_by_email(student_email)
+        query = select(association_table)\
+            .where(association_table.c.student_id == student.id)\
+            .where(association_table.c.course_id == id)
+
+        result = await self.db_session.execute(query)
+        enrolled_student = result.scalar_one_or_none()
+
+        if enrolled_student:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Student already enrolled this course"
+            )
+
+        query = insert(association_table).values(
+            course_id=id,
+            student_id=student.id
+        )
+
+        await self.db_session.execute(query)
+        await self.db_session.commit()
+
+        return {"status": "success"}
