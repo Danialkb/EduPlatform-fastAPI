@@ -40,7 +40,7 @@ class CourseService:
             filename = await self.files_service.save_logo(file)
             filename = 'media/course_logos/' + filename
 
-        course = await self.repo.create_course(body, owner_id, filename)
+        course = await self.repo.create(data={**body, "owner_id": owner_id, "filename": filename})
 
         return ShowCourse(
             title=course.title,
@@ -50,22 +50,15 @@ class CourseService:
 
     async def get_courses(self):
         courses = await self.repo.list()
-
-        if len(courses) == 0:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No courses"
-            )
-
         return courses
 
     async def get_course(self, id: str):
-        course = await self.repo.retrieve(id)
+        course = await self.repo.retrieve_with_related(id, "owner")
 
         return ShowCourse(
             title=course.title,
             description=course.description,
-            owner=f'{course.owner.name + course.owner.surname}'
+            owner=f"{course.owner.name} {course.owner.surname}"
         )
 
     async def get_course_students(self, id: str):

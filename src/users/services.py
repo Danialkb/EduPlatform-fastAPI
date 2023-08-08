@@ -48,12 +48,6 @@ class UserService:
     async def get_user(self, id: str) -> ShowUser:
         user = await self.repo.retrieve(id)
 
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No such user"
-            )
-
         return ShowUser(
             user_id=user.id,
             name=user.name,

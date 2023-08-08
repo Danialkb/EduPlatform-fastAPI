@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 
+from fastapi import HTTPException
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+from starlette import status
 
 
 class AbstractRepository(ABC):
@@ -34,12 +37,43 @@ class RepositoryBase(AbstractRepository):
         query = select(self.model)
         res = await self.db_session.execute(query)
 
-        return res.scalars().all()
+        result = res.scalars().all()
+
+        if len(result) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Not found"
+            )
+
+        return result
 
     async def retrieve(self, id: str):
         query = select(self.model).where(self.model.id == id)
         result = await self.db_session.execute(query)
 
         instance = result.scalar_one_or_none()
+
+        if not instance:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Not found"
+            )
+
+        return instance
+
+    async def retrieve_with_related(self, id: str, related_model):
+        query = select(self.model)\
+            .where(self.model.id == id)\
+            .options(selectinload(getattr(self.model, related_model)))
+
+        result = await self.db_session.execute(query)
+
+        instance = result.scalar_one_or_none()
+
+        if not instance:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Not found"
+            )
 
         return instance
