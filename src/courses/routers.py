@@ -52,6 +52,25 @@ async def add_student(
     return result
 
 
+@router.delete("/{course_id}/delete-student/")
+async def delete_student(
+        id: str,
+        body: AddDeleteStudent,
+        session: AsyncSession = Depends(get_session),
+        user: User = Depends(get_current_user)
+):
+    course_service = CourseService(session)
+    if not is_tutor_and_course_owner(user, id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="authorized access only"
+        )
+
+    result = await course_service.delete_student(id, body)
+
+    return result
+
+
 @router.get("/{course_id}/students/")
 async def get_course_students(
         course_id: str,

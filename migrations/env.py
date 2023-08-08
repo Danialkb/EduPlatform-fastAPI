@@ -14,6 +14,7 @@ from database import Base
 from config import DB_HOST, DB_USER, DB_PORT, DB_NAME, DB_PASSWORD
 from users import models
 from courses import models
+from lessons import models
 
 
 # this is the Alembic Config object, which provides

@@ -23,7 +23,7 @@ class UserService:
     async def create_new_user(self, body: UserCreate) -> ShowUser:
         body.password = self._hash_password(body.password)
 
-        user = await self.repo.create_user(body)
+        user = await self.repo.create(body.dict())
 
         return ShowUser(
             user_id=user.id,
@@ -46,7 +46,7 @@ class UserService:
         )
 
     async def get_user(self, id: str) -> ShowUser:
-        user = await self.repo.get_user(id)
+        user = await self.repo.retrieve(id)
 
         if not user:
             raise HTTPException(

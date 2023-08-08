@@ -49,7 +49,7 @@ class CourseService:
         )
 
     async def get_courses(self):
-        courses = await self.repo.get_courses()
+        courses = await self.repo.list()
 
         if len(courses) == 0:
             raise HTTPException(
@@ -60,13 +60,8 @@ class CourseService:
         return courses
 
     async def get_course(self, id: str):
-        course = await self.repo.get_course(id)
+        course = await self.repo.retrieve(id)
 
-        if not course:
-            raise HTTPException(
-                status_code=status.HTTP_404_BAD_REQUEST,
-                detail="No such course"
-            )
         return ShowCourse(
             title=course.title,
             description=course.description,

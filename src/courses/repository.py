@@ -12,6 +12,7 @@ from utils.repository_base import RepositoryBase
 
 
 class CourseRepo(RepositoryBase):
+    model = Course
 
     async def create_course(self, body: CourseCreate, owner_id: str, filename: str) -> Course:
         new_course = Course(
@@ -24,18 +25,6 @@ class CourseRepo(RepositoryBase):
         self.db_session.add(new_course)
         await self.db_session.commit()
         return new_course
-
-    async def get_courses(self):
-        query = select(Course)
-        result = await self.db_session.execute(query)
-
-        return result.scalars().all()
-
-    async def get_course(self, id: str) -> Course:
-        query = select(Course).where(Course.id == id)
-        result = await self.db_session.execute(query)
-
-        return result.scalar_one_or_none()
 
     async def get_course_students(self, id):
         query = select(Course)\
@@ -78,6 +67,7 @@ class CourseRepo(RepositoryBase):
             .where(association_table.c.student_id == student.id) \
             .where(association_table.c.course_id == id)
         await self.db_session.execute(query)
+        await self.db_session.commit()
 
         return {"status":  "deleted"}
 

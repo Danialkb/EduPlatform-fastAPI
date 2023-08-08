@@ -68,7 +68,7 @@ async def _get_test_db():
             async_session = sessionmaker(
                 bind=connection, expire_on_commit=False, class_=AsyncSession
             )
-            await _drop_tables(test_engine)
+            # await _drop_tables(test_engine)
             await _create_tables(test_engine)
             async with async_session() as session:
                 yield session
