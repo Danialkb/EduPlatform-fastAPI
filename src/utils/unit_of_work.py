@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Type
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from categories.repository import CategoryRepo
 from courses.repository import CourseRepo
@@ -25,13 +26,11 @@ class UnitOfWorkBase(ABC):
     async def rollback(self): ...
 
 
-class UnitOfWork:
-    def __init__(self):
-        self.session_factory = async_session
+class UnitOfWork(UnitOfWorkBase):
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
     async def __aenter__(self):
-        self.session = self.session_factory()
-
         self.users = UserRepo(self.session)
         self.courses = CourseRepo(self.session)
         self.categories = CategoryRepo(self.session)

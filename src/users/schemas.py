@@ -4,7 +4,6 @@ import uuid
 from fastapi import HTTPException
 from pydantic import BaseModel, EmailStr, validator
 
-from users.models import RoleEnum
 from utils.model_config import TunedModel
 
 LETTER_MATCH_PATTERN = re.compile(r"^[а-яА-Яa-zA-Z\-]+$")
@@ -16,7 +15,6 @@ class UserCreate(BaseModel):
     surname: str
     email: EmailStr
     password: str
-    role: RoleEnum
 
     @validator("name")
     def validate_name(cls, value):
@@ -40,7 +38,6 @@ class ShowUser(TunedModel):
     name: str
     surname: str
     email: EmailStr
-    role:  RoleEnum
 
 
 class UserAuth(BaseModel):

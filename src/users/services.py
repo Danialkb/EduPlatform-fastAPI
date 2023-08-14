@@ -32,13 +32,12 @@ class UserService:
                 name=user.name,
                 surname=user.surname,
                 email=user.email,
-                role=user.role
             )
 
     async def verify_user(self, creds) -> Token:
         async with self.uow:
             user = await self.uow.users.get_user_by_email(creds.username)
-            if not self._verify_password(creds.password, user.password):
+            if not user or not self._verify_password(creds.password, user.password):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Incorrect email or password"
@@ -57,7 +56,6 @@ class UserService:
                 name=user.name,
                 surname=user.surname,
                 email=user.email,
-                role=user.role
             )
 
     def _hash_password(self, password: str) -> str:

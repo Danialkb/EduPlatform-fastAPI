@@ -1,5 +1,4 @@
-from courses.models import Course
-from users.models import User, RoleEnum
+from users.models import User
 
 
 def is_course_owner(user: User, course_id: str):

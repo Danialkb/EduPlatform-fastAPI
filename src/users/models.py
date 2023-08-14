@@ -8,11 +8,6 @@ from courses.models import association_table
 from database import Base
 
 
-class RoleEnum(enum.Enum):
-    TUTOR = 'TUTOR'
-    STUDENT = 'STUDENT'
-
-
 class User(Base):
     __tablename__ = "user"
 
@@ -22,7 +17,6 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     is_active = Column(Boolean(), default=True)
     password = Column(String(length=1024), nullable=False)
-    role = Column(SqlEnum(RoleEnum), default=RoleEnum.STUDENT)
 
     courses = relationship("Course", back_populates="owner")
     enrolled_courses = relationship("Course", secondary=association_table, back_populates="students")

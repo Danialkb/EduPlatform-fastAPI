@@ -93,7 +93,7 @@ class CourseService:
             return ShowCourse(
                 title=course.title,
                 description=course.description,
-                owner=f"{course.owner.name} {course.owner.surname}"
+                owner=course.owner.as_dict()
             )
 
     async def get_course_students(self, id: str):

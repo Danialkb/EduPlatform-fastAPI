@@ -34,5 +34,6 @@ async def get_current_user(
     return user
 
 
-async def get_user_service(uow: UnitOfWorkBase = Depends(UnitOfWork)):
+async def get_user_service(session: AsyncSession = Depends(get_session)):
+    uow = UnitOfWork(session)
     return UserService(uow)

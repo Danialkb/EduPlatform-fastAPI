@@ -10,7 +10,7 @@ class CourseCreate(BaseModel):
 
 class ShowCourse(BaseModel):
     title: str
-    description: str
+    description: str | None
     owner: dict
 
 
