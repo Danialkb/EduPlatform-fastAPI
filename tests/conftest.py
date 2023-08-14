@@ -6,6 +6,7 @@ from typing import Any, Generator, AsyncGenerator
 
 import asyncpg
 import pytest
+import sqlalchemy
 from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.exc import NotSupportedError
@@ -20,8 +21,7 @@ from users.models import User, RoleEnum
 import settings
 from database import get_session, Base, async_session
 from main import app
-from users.services import _AuthenticationService
-
+from users.services import _AuthenticationService, UserService
 
 engine = create_async_engine(settings.TEST_DATABASE_URL, future=True, echo=True)
 
@@ -51,9 +51,36 @@ async def _create_tables(engine):
         await conn.run_sync(Base.metadata.create_all)
 
 
-async def _drop_tables(engine):
-    async with engine.begin() as conn:
+@pytest.fixture(scope="function")
+async def drop_tables():
+    test_engine = create_async_engine(
+        settings.TEST_DATABASE_URL, future=True, echo=True
+    )
+
+    # Drop all tables
+    async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+
+    yield
+
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+@pytest.fixture(scope="function")
+async def clear_tables():
+    test_engine = create_async_engine(
+        settings.TEST_DATABASE_URL, future=True, echo=True
+    )
+
+    async with test_engine.connect() as conn:
+        for table in Base.metadata.sorted_tables:
+            if test_engine.dialect.name == 'postgresql':
+                await conn.execute(sqlalchemy.text(f'TRUNCATE TABLE "{table.name}" RESTART IDENTITY CASCADE;'))
+            else:
+                await conn.execute(table.delete())
+
+    yield
 
 
 async def _get_test_db():
@@ -113,7 +140,7 @@ async def create_user_in_database(asyncpg_pool):
                 surname,
                 email,
                 is_active,
-                password,
+                UserService(async_session)._hash_password(password=password),
                 role
             )
 

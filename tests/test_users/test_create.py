@@ -4,9 +4,11 @@ import pytest
 from sqlalchemy import select
 
 from users.models import User
+from users.repository import UserRepo
+from users.services import UserService
 
 
-async def test_create_user(client, async_session):
+async def test_create_user(clear_tables, client, async_session):
     user_data = {
         "name": "Danial",
         "surname": "Bidaibek",
@@ -32,7 +34,7 @@ async def test_create_user(client, async_session):
     assert len(user_from_db.all()) == 1
 
 
-async def test_create_user_validation_error(client):
+async def test_create_user_validation_error(drop_tables, client):
     user_data = {
         "name": "Danial",
         "surname": "Bidaibek",

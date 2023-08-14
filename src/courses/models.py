@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import Column, UUID, ForeignKey, String, Boolean, Table
 from sqlalchemy.orm import relationship
 
+from categories.models import course_category
 from database import Base
 from lessons.models import Lesson
 
@@ -29,3 +30,5 @@ class Course(Base):
     owner = relationship("User", back_populates="courses")
     students = relationship("User", secondary=association_table, back_populates="courses")
     lessons = relationship("Lesson", back_populates="course")
+    categories = relationship("Category", secondary=course_category, back_populates="courses")
+

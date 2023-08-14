@@ -1,17 +1,13 @@
 import uuid
 
-import pytest
 
-from users.models import RoleEnum, User
-
-
-async def test_get_user_by_id(client, create_user_in_database):
+async def test_authentication(client, create_user_in_database):
     id = uuid.uuid4()
     user_data = {
         "id": id,
         "name": "Danial",
         "surname": "Bidaibek",
-        "email": "dan@gmail.com",
+        "email": "auth_test@gmail.com",
         "password": "123",
         "is_active": True,
         "role": "STUDENT"
@@ -19,6 +15,6 @@ async def test_get_user_by_id(client, create_user_in_database):
 
     await create_user_in_database(**user_data)
 
-    response = client.get(f'/users/{id}/')
+    response = client.post("/users/token/", json={"username": user_data['email'], "password": "123"})
 
     assert response.status_code == 200
