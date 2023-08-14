@@ -27,4 +27,10 @@ class User(Base):
     courses = relationship("Course", back_populates="owner")
     enrolled_courses = relationship("Course", secondary=association_table, back_populates="students")
 
-
+    def as_dict(self):
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "surname": self.surname,
+            "email": self.email,
+        }

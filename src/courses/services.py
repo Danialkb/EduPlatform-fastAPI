@@ -80,7 +80,7 @@ class CourseService:
                     ShowCourse(
                         title=course.title,
                         description=course.description,
-                        owner=ShowUser(**course.owner.items()),
+                        owner=course.owner.as_dict(),
                     )
                 )
 
