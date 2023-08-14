@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Type
 
+from categories.repository import CategoryRepo
 from courses.repository import CourseRepo
 from database import async_session
 from users.repository import UserRepo
@@ -9,6 +10,7 @@ from users.repository import UserRepo
 class UnitOfWorkBase(ABC):
     users: UserRepo
     courses: CourseRepo
+    categories: CategoryRepo
 
     @abstractmethod
     async def __aenter__(self): ...
@@ -32,6 +34,7 @@ class UnitOfWork:
 
         self.users = UserRepo(self.session)
         self.courses = CourseRepo(self.session)
+        self.categories = CategoryRepo(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()

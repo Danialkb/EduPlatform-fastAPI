@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from fastapi import HTTPException
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette import status
@@ -30,7 +30,17 @@ class RepositoryBase(AbstractRepository):
     async def create(self,  data: dict):
         query = insert(self.model).values(**data).returning(self.model)
         res = await self.db_session.execute(query)
-        await self.db_session.commit()
+        return res.scalar_one_or_none()
+
+    async def update(self, id: str, data: dict):
+        query = (
+            update(self.model)
+            .where(self.model.id == id)
+            .values(**data)
+            .returning(self.model)
+        )
+
+        res = await self.db_session.execute(query)
         return res.scalar_one_or_none()
 
     async def list(self):

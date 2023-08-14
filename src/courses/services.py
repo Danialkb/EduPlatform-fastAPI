@@ -1,10 +1,12 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import HTTPException, UploadFile
 from starlette import status
 
+from courses.models import Course
 from courses.schemas import CourseCreate, ShowCourse, AddDeleteStudent
+from users.schemas import ShowUser
 from utils.unit_of_work import UnitOfWorkBase
 
 
@@ -33,25 +35,40 @@ class CourseService:
         self.uow = uow
         self.files_service = FilesService()
 
-    async def create_course(self, body: CourseCreate, owner_id: str, file: Optional[UploadFile]):
+    async def create_course(self, body: CourseCreate, owner_id: str):
+        async with self.uow:
+            data = {**body.dict(), "owner_id": owner_id}
+
+            await self.uow.courses.create(data)
+            await self.uow.commit()
+
+            return {"status": "created"}
+
+    async def edit_course(
+            self,
+            id: str,
+            description: Optional[str],
+            logo: Optional[UploadFile],
+            categories: Optional[List[str]],
+    ):
         async with self.uow:
             filename = None
-            if file:
-                filename = await self.files_service.save_logo(file)
-                filename = 'course_logos/' + filename
+            if logo:
+                filename = await self.files_service.save_logo(logo)
 
-            data = {**body.dict(), "owner_id": owner_id}
+            data = dict(description=description)
+
             if filename:
-                data['logo'] = filename
+                data["logo"] = filename
 
-            course = await self.uow.courses.create(data)
-            loaded_course = await self.uow.courses.retrieve_with_related(course.id, "owner")
+            if categories:
+                categories = categories[0].split(',')
+                for category_slug in categories:
+                    await self.uow.categories.add_categories_for_course(id, category_slug)
 
-            return ShowCourse(
-                title=course.title,
-                description=course.description,
-                owner=f'{loaded_course.owner.name} {loaded_course.owner.surname}'
-            )
+            course = await self.uow.courses.update(id, data)
+            await self.uow.commit()
+            return course
 
     async def get_courses(self):
         async with self.uow:
@@ -63,7 +80,7 @@ class CourseService:
                     ShowCourse(
                         title=course.title,
                         description=course.description,
-                        owner=str(course.owner_id),
+                        owner=ShowUser(**course.owner.items()),
                     )
                 )
 
@@ -85,8 +102,14 @@ class CourseService:
 
     async def add_student(self, id: str, body: AddDeleteStudent):
         async with self.uow:
-            return await self.uow.courses.add_student(id, body.email)
+            result = await self.uow.courses.add_student(id, body.email)
+            await self.uow.commit()
+
+            return result
 
     async def delete_student(self, id: str, body:  AddDeleteStudent):
         async with self.uow:
-            return await self.uow.courses.delete_student(id, body.email)
+            result = await self.uow.courses.delete_student(id, body.email)
+
+            await self.uow.commit()
+            return result

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Union, Any
 
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
@@ -9,8 +9,8 @@ from starlette import status
 
 from config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, REFRESH_TOKEN_EXPIRE_MINUTES
 
-from users.schemas import UserCreate, ShowUser, Token, UserAuth
-from utils.unit_of_work import UnitOfWorkBase, UnitOfWork
+from users.schemas import UserCreate, ShowUser, Token
+from utils.unit_of_work import UnitOfWorkBase
 
 
 class UserService:
@@ -24,6 +24,8 @@ class UserService:
             body.password = self._hash_password(body.password)
 
             user = await self.uow.users.create(body.dict())
+
+            await self.uow.commit()
 
             return ShowUser(
                 user_id=user.id,

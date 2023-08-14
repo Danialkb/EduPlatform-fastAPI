@@ -6,7 +6,6 @@ from sqlalchemy.orm import selectinload
 from starlette import status
 
 from courses.models import Course, association_table
-from courses.schemas import CourseCreate
 from users.repository import UserRepo
 from utils.repository_base import RepositoryBase
 
@@ -44,7 +43,6 @@ class CourseRepo(RepositoryBase):
         )
 
         await self.db_session.execute(query)
-        await self.db_session.commit()
 
         return {"status": "success"}
 
@@ -55,7 +53,5 @@ class CourseRepo(RepositoryBase):
             .where(association_table.c.student_id == student.id) \
             .where(association_table.c.course_id == id)
         await self.db_session.execute(query)
-        await self.db_session.commit()
 
         return {"status":  "deleted"}
-
