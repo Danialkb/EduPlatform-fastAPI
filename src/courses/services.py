@@ -4,9 +4,7 @@ from typing import Optional, List
 from fastapi import HTTPException, UploadFile
 from starlette import status
 
-from courses.models import Course
 from courses.schemas import CourseCreate, ShowCourse, AddDeleteStudent
-from users.schemas import ShowUser
 from utils.unit_of_work import UnitOfWorkBase
 
 

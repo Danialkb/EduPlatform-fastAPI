@@ -47,6 +47,12 @@ class UserService:
                 type="bearer",
             )
 
+    async def get_users(self):
+        async with self.uow:
+            users = await self.uow.users.list()
+
+            return users
+
     async def get_user(self, id: str) -> ShowUser:
         async with self.uow:
             user = await self.uow.users.retrieve(id)

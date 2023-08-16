@@ -15,3 +15,10 @@ class CourseModule(Base):
 
     course = relationship("Course", back_populates="modules")
     lessons = relationship("Lesson", back_populates="module")
+
+    # def as_dict(self):
+    #     return {
+    #         "id": self.id,
+    #         "title": self.title,
+    #         "course_id": self.course_id,
+    #     }

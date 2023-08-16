@@ -3,6 +3,8 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from starlette import status
 
+from course_modules.dependencies import get_course_module_service
+from course_modules.services import CourseModuleService
 from courses.permissions import is_course_owner
 from courses.schemas import ShowCourse, CourseCreate, AddDeleteStudent
 from courses.services import CourseService
@@ -22,20 +24,21 @@ async def create_course(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="authorized access only"
+            detail="Authorized access only"
         )
     body = CourseCreate(title=title)
     result = await course_service.create_course(body, user.id)
     return result
 
+
 @router.put("/course_id/")
 async def edit_course(
-    id: str,
-    description: str = Form(...),
-    logo: UploadFile = File(None),
-    categories: List[str] = Form(...),
-    user: User = Depends(get_current_user),
-    course_service: CourseService = Depends(get_course_service),
+        id: str,
+        description: str = Form(...),
+        logo: UploadFile = File(None),
+        categories: List[str] = Form(...),
+        user: User = Depends(get_current_user),
+        course_service: CourseService = Depends(get_course_service),
 ):
     if not is_course_owner(user, id):
         raise HTTPException(
@@ -97,6 +100,7 @@ async def get_course_students(
     result = await course_service.get_course_students(course_id)
 
     return result
+
 
 @router.get("/")
 async def get_courses(
