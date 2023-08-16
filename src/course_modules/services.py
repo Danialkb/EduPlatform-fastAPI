@@ -26,3 +26,15 @@ class CourseModuleService:
             await self.uow.commit()
 
             return module
+
+    async def get_module(self, module_id: str):
+        async with self.uow:
+            module = await self.uow.course_modules.retrieve_with_related(id=module_id, related_model="lessons")
+            return module.as_dict()
+
+    async def delete_module(self, module_id: str):
+        async with self.uow:
+            res = await self.uow.course_modules.delete(module_id)
+            await self.uow.commit()
+
+            return res

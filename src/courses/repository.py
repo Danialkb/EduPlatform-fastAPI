@@ -49,6 +49,11 @@ class CourseRepo(RepositoryBase):
     async def delete_student(self, id: str, student_email: str):
         user_service = UserRepo(self.db_session)
         student = await user_service.get_user_by_email(student_email)
+        if not student:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No such student"
+            )
         query = delete(association_table) \
             .where(association_table.c.student_id == student.id) \
             .where(association_table.c.course_id == id)
