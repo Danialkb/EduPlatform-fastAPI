@@ -12,11 +12,18 @@ class Lesson(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String, nullable=False)
-    content = Column(Text, nullable=False)
+    content = Column(Text, nullable=True)
     video = Column(String, nullable=True)
-    course_id = Column(UUID(as_uuid=True), ForeignKey("course.id"))
     module_id = Column(UUID(as_uuid=True), ForeignKey("course_module.id"))
 
-    course = relationship("Course", back_populates="lessons")
     module = relationship("CourseModule", back_populates="lessons")
+
+    def as_dict(self):
+        return dict(
+            id=self.id,
+            title=self.title,
+            content=self.content,
+            video=self.video,
+            module_id=self.module_id,
+        )
 

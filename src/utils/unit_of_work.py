@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from categories.repository import CategoryRepo
 from course_modules.repos import CourseModuleRepo
 from courses.repository import CourseRepo
+from lessons.repository import LessonRepo
 from users.repository import UserRepo
 
 
@@ -13,6 +14,7 @@ class UnitOfWorkBase(ABC):
     courses: CourseRepo
     categories: CategoryRepo
     course_modules: CourseModuleRepo
+    lessons: LessonRepo
 
     @abstractmethod
     async def __aenter__(self): ...
@@ -36,6 +38,7 @@ class UnitOfWork(UnitOfWorkBase):
         self.courses = CourseRepo(self.session)
         self.categories = CategoryRepo(self.session)
         self.course_modules = CourseModuleRepo(self.session)
+        self.lessons = LessonRepo(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()

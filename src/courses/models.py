@@ -29,7 +29,6 @@ class Course(Base):
 
     owner = relationship("User", back_populates="courses", lazy="joined")
     students = relationship("User", secondary=association_table, back_populates="courses")
-    lessons = relationship("Lesson", back_populates="course")
     categories = relationship("Category", secondary=course_category, back_populates="courses")
     modules = relationship("CourseModule", back_populates="course")
 

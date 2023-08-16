@@ -13,14 +13,7 @@ class CourseModuleService:
             modules = []
 
             for module in res:
-                modules.append(
-                    dict(
-                        id=module.id,
-                        title=module.title,
-                        course_id=module.course_id,
-                        lessons=module.lessons
-                    )
-                )
+                modules.append(module.as_dict())
 
             return modules
 
