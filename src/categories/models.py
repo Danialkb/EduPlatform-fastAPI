@@ -21,3 +21,9 @@ class Category(Base):
     name = Column(String, nullable=False)
 
     courses = relationship("Course", secondary=course_category, back_populates="categories")
+
+    def as_dict(self):
+        return dict(
+            id=self.id,
+            name=self.name,
+        )

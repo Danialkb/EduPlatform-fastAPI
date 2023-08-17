@@ -2,9 +2,10 @@ from typing import List
 
 from fastapi import HTTPException
 from sqlalchemy import select, insert, delete
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import selectinload, joinedload, subqueryload
 from starlette import status
 
+from categories.models import Category
 from course_modules.models import Module
 from courses.models import Course, association_table
 from users.repository import UserRepo
@@ -26,7 +27,7 @@ class CourseRepo(RepositoryBase):
         query = select(Course).where(Course.id == id).options(
             joinedload(Course.owner),
             joinedload(Course.modules).options(selectinload(Module.lessons)),
-            # joinedload(Course.modules).options(selectinload(Module.lessons))
+            subqueryload(Course.categories)
         )
 
         res = await self.db_session.execute(query)

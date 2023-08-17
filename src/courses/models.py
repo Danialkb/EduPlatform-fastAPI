@@ -41,6 +41,8 @@ class Course(Base):
             is_private=self.is_private,
             logo=self.logo,
             owner=self.owner.as_dict(),
-            modules=[module.as_dict() for module in self.modules]
+            modules=[module.as_dict() for module in self.modules],
+            categories=[category.as_dict() for category in self.categories]
         )
+
 
