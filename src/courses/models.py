@@ -27,8 +27,20 @@ class Course(Base):
     is_private = Column(Boolean(), default=True)
     logo = Column(String, default='/course_logos/no-img.png')
 
-    owner = relationship("User", back_populates="courses", lazy="joined")
+    owner = relationship("User", back_populates="courses")
     students = relationship("User", secondary=association_table, back_populates="courses")
     categories = relationship("Category", secondary=course_category, back_populates="courses")
-    modules = relationship("CourseModule", back_populates="course")
+    modules = relationship("Module", back_populates="course")
+
+    def as_dict(self):
+        return dict(
+            id=self.id,
+            title=self.title,
+            description=self.description,
+            is_active=self.is_active,
+            is_private=self.is_private,
+            logo=self.logo,
+            owner=self.owner.as_dict(),
+            modules=[module.as_dict() for module in self.modules]
+        )
 

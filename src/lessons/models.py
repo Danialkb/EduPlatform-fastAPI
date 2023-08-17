@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, UUID, Text, ForeignKey
 from sqlalchemy.orm import relationship
 
 from database import Base
-from course_modules.models import CourseModule
+from course_modules.models import Module
 
 
 class Lesson(Base):
@@ -16,7 +16,7 @@ class Lesson(Base):
     video = Column(String, nullable=True)
     module_id = Column(UUID(as_uuid=True), ForeignKey("course_module.id"))
 
-    module = relationship("CourseModule", back_populates="lessons")
+    module = relationship("Module", back_populates="lessons")
 
     def as_dict(self):
         return dict(

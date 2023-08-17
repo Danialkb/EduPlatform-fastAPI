@@ -2,9 +2,10 @@ from typing import List
 
 from fastapi import HTTPException
 from sqlalchemy import select, insert, delete
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from starlette import status
 
+from course_modules.models import Module
 from courses.models import Course, association_table
 from users.repository import UserRepo
 from utils.repository_base import RepositoryBase
@@ -20,6 +21,16 @@ class CourseRepo(RepositoryBase):
         result = await self.db_session.execute(query)
 
         return result.scalars().all()
+
+    async def get_full_course(self, id: str):
+        query = select(Course).where(Course.id == id).options(
+            joinedload(Course.owner),
+            joinedload(Course.modules).options(selectinload(Module.lessons)),
+            # joinedload(Course.modules).options(selectinload(Module.lessons))
+        )
+
+        res = await self.db_session.execute(query)
+        return res.scalars().unique().first()
 
     async def add_student(self, id: str, student_email: str):
         user_service = UserRepo(self.db_session)

@@ -26,3 +26,11 @@ async def add_lesson(
         )
 
     return await lesson_service.create_lesson(body, module_id)
+
+
+@router.get("/modules/{module_id}/lessons/")
+async def get_lessons(
+        module_id: str,
+        lesson_service: LessonService = Depends(get_lesson_service),
+):
+    return await lesson_service.get_lessons()

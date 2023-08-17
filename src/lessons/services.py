@@ -12,3 +12,8 @@ class LessonService:
 
             await self.uow.commit()
             return lesson
+
+    async def get_lessons(self):
+        async with self.uow:
+            lessons = await self.uow.lessons.list()
+            return [lesson.as_dict() for lesson in lessons]

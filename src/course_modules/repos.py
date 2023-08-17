@@ -3,13 +3,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload, joinedload
 from starlette import status
 
-from course_modules.models import CourseModule
+from course_modules.models import Module
 from lessons.models import Lesson
 from utils.repository_base import RepositoryBase
 
 
 class CourseModuleRepo(RepositoryBase):
-    model = CourseModule
+    model = Module
 
     async def list(self, course_id):
         query = select(self.model)\

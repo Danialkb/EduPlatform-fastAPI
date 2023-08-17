@@ -4,8 +4,11 @@ from fastapi import HTTPException
 from sqlalchemy import insert, select, update, delete
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from starlette import status
+
+from course_modules.models import Module
+from courses.models import Course
 
 
 class AbstractRepository(ABC):
@@ -24,6 +27,10 @@ class AbstractRepository(ABC):
 
 class RepositoryBase(AbstractRepository):
     model = None
+    not_found = HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Not found"
+            )
 
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
@@ -38,10 +45,7 @@ class RepositoryBase(AbstractRepository):
         try:
             await self.db_session.execute(query)
         except DBAPIError:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No such module"
-            )
+            raise self.not_found
 
         return {"status": "success"}
 
@@ -63,10 +67,7 @@ class RepositoryBase(AbstractRepository):
         result = res.scalars().all()
 
         if len(result) == 0:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Not found"
-            )
+            raise self.not_found
 
         return result
 
@@ -77,21 +78,16 @@ class RepositoryBase(AbstractRepository):
             result = await self.db_session.execute(query)
             instance = result.scalar_one_or_none()
             if not instance:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Not found"
-                )
+                raise self.not_found
+
         except DBAPIError as db_error:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Not found"
-            )
+            raise self.not_found
 
         return instance
 
-    async def retrieve_with_related(self, id: str, related_model):
-        query = select(self.model)\
-            .where(self.model.id == id)\
+    async def retrieve_with_related(self, id: str, related_model: str):
+        query = select(self.model) \
+            .where(self.model.id == id) \
             .options(selectinload(getattr(self.model, related_model)))
 
         try:
@@ -102,7 +98,7 @@ class RepositoryBase(AbstractRepository):
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Not found"
                 )
-        except DBAPIError as db_error:
+        except DBAPIError:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Not found"

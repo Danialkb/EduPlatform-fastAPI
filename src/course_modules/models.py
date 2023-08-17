@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
-class CourseModule(Base):
+class Module(Base):
     __tablename__ = "course_module"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

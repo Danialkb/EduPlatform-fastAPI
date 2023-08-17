@@ -86,13 +86,8 @@ class CourseService:
 
     async def get_course(self, id: str):
         async with self.uow:
-            course = await self.uow.courses.retrieve_with_related(id, "owner")
-
-            return ShowCourse(
-                title=course.title,
-                description=course.description,
-                owner=course.owner.as_dict()
-            )
+            course = await self.uow.courses.get_full_course(id=id)
+            return course.as_dict()
 
     async def get_course_students(self, id: str):
         async with self.uow:

@@ -109,9 +109,9 @@ async def get_courses(
     return await course_service.get_courses()
 
 
-@router.get("/{id}/", response_model=ShowCourse)
+@router.get("/{id}/")
 async def get_course(
         id: str,
         course_service: CourseService = Depends(get_course_service),
-) -> ShowCourse:
+):
     return await course_service.get_course(id)

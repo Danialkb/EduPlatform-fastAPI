@@ -1,4 +1,3 @@
-from course_modules.models import CourseModule
 from course_modules.schemas import CourseModuleCreate
 from utils.unit_of_work import UnitOfWorkBase
 
